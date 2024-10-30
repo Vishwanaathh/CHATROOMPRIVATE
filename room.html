@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatroom</title>
+    <link rel="icon" href="/path/to/favicon.ico" type="image/x-icon">
+
+</head>
+<style>
+    #inp{
+        width:90%;
+        height:5%;
+        position:fixed;
+        bottom:0px;
+    }
+    #but{
+        
+        position:fixed;
+        bottom:0px;
+        height:5%;
+        left:93%;
+    }
+    div{
+        display:inline;
+    }
+    body{
+        background-color: lightgreen;
+        font-family: monospace;
+        color:seagreen;
+    }
+    li{
+        background-color: aliceblue;
+    }
+</style>
+<body>
+    <h1>Custom Chatroom</h1>
+    <a href="https://savedchats.vercel.app/saved.html"> CLICK HERE TO VIEW SAVED CHATS</a>
+    <ul id="list"></ul>
+    <div>
+    <input type="text" id="inp"/><button id="but">SEND</button></div>
+</body>
+</html>
+<script>
+   (function(){
+         let but=document.getElementById("but");
+         let inp=document.getElementById("inp");
+         let list=document.getElementById("list");
+         let ws;
+         function showMessage(message){
+            const li=document.createElement('li');
+            li.innerText=message;
+            list.appendChild(li);
+
+         }
+         function init(){
+            ws=new WebSocket('wss://chatbackend-production-1258.up.railway.app');
+            ws.onopen=()=>{
+                console.log('listening');
+            }
+            ws.onmessage=async({data})=>{
+                const text=await data.text();
+                const bodi={
+                    Code:text
+                }
+                fetch('https://chatsaver.vercel.app/start',{
+                     method:"POST",
+                     headers:{
+                         "Content-Type":"application/json"
+                     },
+                     body:JSON.stringify(bodi),
+
+                     
+                })
+                showMessage(text);
+            }
+            ws.onclose = function() {
+             ws = null;
+               }
+         }
+         but.onclick=()=>{
+            ws.send(inp.value);
+           
+
+         }
+         init();
+         var intervalId;
+
+    var scrollDistance = 10;
+
+intervalId = setInterval(function() {
+
+window.scrollTo(0, window.pageYOffset + scrollDistance);
+
+}, 100);
+    })();
+</script>
